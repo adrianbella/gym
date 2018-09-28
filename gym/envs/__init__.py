@@ -530,4 +530,11 @@ register(
     entry_point='gym.envs.unittest:MemorizeDigits',
     reward_threshold=20,
     )
+# Virtual Drone
+# -------------
 
+register(
+    id='VirtualDrone-v0',
+    entry_point='gym.envs.virtual_drone:Environment',
+    max_episode_steps=100,
+)
