@@ -11,6 +11,7 @@ from gym.utils import seeding
 from gym.envs.virtual_drone.display import Display
 from gym.envs.virtual_drone.logger import Logger
 
+
 class Environment(gym.Env):
     CLASS_TAG = 'Environment: '
     metadata = {'render.modes': ['human', 'rgb_array']}
@@ -136,9 +137,9 @@ class Environment(gym.Env):
         self.previous_state = np.zeros(3)  # set previous state to null
         self.info.update({'iterations': self.iterations})
 
-        r_index = self.np_random.randint(0, 7)
-        fi_index = self.np_random.randint(0, 45)
-        theta_index = self.np_random.randint(0, 21)
+        r_index = 3#self.np_random.randint(0, 7)
+        fi_index = 0#self.np_random.randint(0, 45)
+        theta_index = 10#self.np_random.randint(0, 21)
 
         self.current_state = np.array([r_index, fi_index, theta_index])
 
@@ -223,7 +224,7 @@ class Environment(gym.Env):
             observation = self.img_array[r_index, fi_index, theta_index]  # find the new camera input
         # -------------------------------------------------------------------------------------------------
 
-        reward = self.get_reward(self.previous_state)  # calcuate the reward
+        reward = self.get_reward()  # calcuate the reward
 
         self.iterations += 1
         self.info.update({'iterations': self.iterations})
@@ -236,9 +237,38 @@ class Environment(gym.Env):
 
         return observation, reward, self.done, self.info
 
-    def get_reward(self, prev_state):  # TODO: megírni a jutalom függvényt
+    def get_reward(self):
 
-        # ha a megfelelő irányba tesz lépés akkor plusz 1 pont, ha nem akkor -1
-        # minél közelebb van annál nagyobb súllyal számítsanak a rossz/jó lépések próbálgatni kell
+        prev_r_distance = abs(self.previous_state[0] - self.optimal_position[0])
+        if self.previous_state[1] > 22:
+            prev_fi_distance = abs(self.previous_state[1] - 45)
+        else:
+            prev_fi_distance = abs(self.previous_state[1] - self.optimal_position[1])
+        prev_theta_distance = abs(self.previous_state[2] - self.optimal_position[2])
 
-        return self.np_random.randint(0, 2)
+        previous_distance = prev_r_distance + prev_fi_distance + prev_theta_distance
+
+        current_r_distance = abs(self.current_state[0] - self.optimal_position[0])
+        if self.current_state[1] > 22:
+            current_fi_distance = abs(self.current_state[1] - 45)
+        else:
+            current_fi_distance = abs(self.current_state[1] - self.optimal_position[1])
+        current_theta_distance = abs(self.current_state[2] - self.optimal_position[2])
+
+        current_distance = current_r_distance + current_fi_distance + current_theta_distance
+
+        reward_dist = 0
+
+        if (current_distance - previous_distance) >= 0:
+            reward_dist -= 1
+        else:
+            reward_dist += 1
+
+        reward_bonus = 0
+
+        if reward_dist > 0 and current_distance < 5:
+            reward_bonus = math.exp(5 / (pow(current_distance * 2, 2) + 2))
+
+        reward_sum = reward_dist + reward_bonus
+
+        return reward_sum
