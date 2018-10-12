@@ -9,7 +9,6 @@ from gym import spaces
 from gym.utils import seeding
 
 from gym.envs.virtual_drone.display import Display
-from gym.envs.virtual_drone.logger import Logger
 
 
 class Environment(gym.Env):
@@ -17,10 +16,10 @@ class Environment(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array']}
 
     def __init__(self):
-        Logger.create()
         self.seed()
 
         self.iterations = 0
+        self.episode_steps = 0
         self.iteration_limit = 100
         self.done = False
         self.info = {
@@ -52,10 +51,8 @@ class Environment(gym.Env):
             self.read_files()
         except IOError as e:
             print(self.CLASS_TAG + "Error: can\'t find the files or read data")
-            Logger.log_error(self.CLASS_TAG, e)
         else:
             print(self.CLASS_TAG + "Reading screenshots was successful!")
-            Logger.log_msg(self.CLASS_TAG + "Reading screenshots was successful!")
 
     def read_files(self):
 
@@ -132,14 +129,13 @@ class Environment(gym.Env):
 
     def reset(self):
 
-        self.iterations = 0
+        self.episode_steps = 0
         self.done = False
         self.previous_state = np.zeros(3)  # set previous state to null
-        self.info.update({'iterations': self.iterations})
 
-        r_index = 3#self.np_random.randint(0, 7)
-        fi_index = 0#self.np_random.randint(0, 45)
-        theta_index = 10#self.np_random.randint(0, 21)
+        r_index = self.np_random.randint(0, 7)
+        fi_index = self.np_random.randint(0, 45)
+        theta_index = self.np_random.randint(0, 21)
 
         self.current_state = np.array([r_index, fi_index, theta_index])
 
@@ -152,7 +148,7 @@ class Environment(gym.Env):
         fi_index = self.current_state[1]
         theta_index = self.current_state[2]
 
-        if self.iterations != 0:
+        if self.episode_steps != 0:
             Display.close()
 
         if mode == 'rgb_array':
@@ -185,31 +181,25 @@ class Environment(gym.Env):
         if action == 'forward':
             if r_index != 0:  # check if we can move forward
                 r_index -= 1
-            print(self.CLASS_TAG + 'step forward')
         elif action == 'backward':
             if r_index != 6:  # check if we can move backward
                 r_index += 1
-            print(self.CLASS_TAG + 'step backward')
         elif action == 'up':
             if theta_index != 0:  # check if we can move up
                 theta_index -= 1
-            print(self.CLASS_TAG + 'up')
         elif action == 'down':
             if theta_index != 20:  # check if we can move down
                 theta_index += 1
-            print(self.CLASS_TAG + 'step down')
         elif action == 'left':
             if fi_index == 0:  # check if we are across from the figure
                 fi_index = 44
             else:  # all other cases
                 fi_index -= 1
-            print(self.CLASS_TAG + 'step left')
         elif action == 'right':
             if fi_index == 44:  # check if we reached the maximal fi_index value
                 fi_index = 0
             else:  # all other cases
                 fi_index += 1
-            print(self.CLASS_TAG + 'step right')
 
         # validate and set indexes
         if not (0 <= r_index <= 6):
@@ -227,13 +217,12 @@ class Environment(gym.Env):
         reward = self.get_reward()  # calcuate the reward
 
         self.iterations += 1
+        self.episode_steps += 1
         self.info.update({'iterations': self.iterations})
 
         # if we reach the maximal given iteration count, or the optimal position, set done true
-        if self.iterations == self.iteration_limit or np.array_equal(self.optimal_position, self.current_state):
+        if self.episode_steps == self.iteration_limit or np.array_equal(self.optimal_position, self.current_state):
             self.done = True
-
-        Logger.log_step(action, self.previous_state, self.current_state, reward, self.iterations, self.done)
 
         return observation, reward, self.done, self.info
 
