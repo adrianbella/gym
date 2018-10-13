@@ -20,7 +20,7 @@ class Environment(gym.Env):
 
         self.iterations = 0
         self.episode_steps = 0
-        self.iteration_limit = 100
+        self.iteration_limit = 40
         self.done = False
         self.info = {
             'iterations': self.iterations
@@ -249,7 +249,7 @@ class Environment(gym.Env):
         reward_dist = 0
 
         if (current_distance - previous_distance) >= 0:
-            reward_dist -= 1
+            reward_dist -= 4
         else:
             reward_dist += 1
 
