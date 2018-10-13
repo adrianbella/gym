@@ -36,9 +36,9 @@ class Environment(gym.Env):
         # set of the name of the figures were used during the validation process
         self.validation_names = np.array(['regina', 'remy', 'stefani'], dtype='U10')  #
 
-        self.img_array = np.zeros((7, 45, 21, 200, 200)).astype(np.uint8)
+        self.img_array = np.zeros((12, 7, 45, 21, 200, 200), dtype=np.uint8)
 
-        self.current_name = ''
+        self.current_figure_index = 0
         self.current_state = np.zeros(3)
         self.previous_state = np.zeros(3)
 
@@ -56,24 +56,21 @@ class Environment(gym.Env):
 
     def read_files(self):
 
-        self.current_name = self.get_random_name()
-        current_figure_screenShots_path = "./Screenshots/" + self.current_name + "/*.png"
+        for figure_index in range(0,11):
+            current_name = self.get_name(figure_index)
+            current_figure_screenShots_path = "./Screenshots/" + current_name + "/*.png"
+            for im_path in glob.glob(current_figure_screenShots_path):
+                x, y, z = self.get_descartes_coordinates(im_path)
+                r, fi, theta = self.get_polar_coordinates(x, y, z)
 
-        for im_path in glob.glob(current_figure_screenShots_path):
-            x, y, z = self.get_descartes_coordinates(im_path)
-            r, fi, theta = self.get_polar_coordinates(x, y, z)
+                r_index = int((r - 0.5) / 0.15)  # r_index [0:6]
+                fi_index = int(fi / 8)  # fi_index [0:44]
+                theta_index = int((theta - 10) / 8)  # theta_index [0:20]
 
-            r_index = int((r - 0.5) / 0.15)  # r_index [0:6]
-            fi_index = int(fi / 8)  # fi_index [0:44]
-            theta_index = int((theta - 10) / 8)  # theta_index [0:20]
+                img = imageio.imread(im_path)
+                self.img_array[figure_index, r_index, fi_index, theta_index] = self.gray_scale(img)
 
-            img = imageio.imread(im_path)
-            self.img_array[r_index, fi_index, theta_index] = self.gray_scale(img)
-
-    def get_random_name(self):
-        figures_count = len(self.traning_names)
-        figure_index = self.np_random.randint(0,
-                                              figures_count)  # choose a random figure_index from the possible ones
+    def get_name(self, figure_index):
         name = self.traning_names[figure_index]  # get the name of the figure
         return name
 
@@ -133,13 +130,15 @@ class Environment(gym.Env):
         self.done = False
         self.previous_state = np.zeros(3)  # set previous state to null
 
+        figure_index = self.np_random.randint(0,12)
         r_index = self.np_random.randint(0, 7)
         fi_index = self.np_random.randint(0, 45)
         theta_index = self.np_random.randint(0, 21)
 
+        self.current_figure_index = figure_index
         self.current_state = np.array([r_index, fi_index, theta_index])
 
-        initial_observation = self.img_array[r_index, fi_index, theta_index]
+        initial_observation = self.img_array[self.current_figure_index, r_index, fi_index, theta_index]
 
         return initial_observation
 
@@ -152,10 +151,10 @@ class Environment(gym.Env):
             Display.close()
 
         if mode == 'rgb_array':
-            return self.img_array[r_index, fi_index, theta_index]  # return RGB frame suitable for video
+            return self.img_array[self.current_figure_index, r_index, fi_index, theta_index]  # return RGB frame suitable for video
         elif mode is 'human':
-            Display.show_img(self.img_array[r_index, fi_index, theta_index])
-            return self.img_array[r_index, fi_index, theta_index]
+            Display.show_img(self.img_array[self.current_figure_index, r_index, fi_index, theta_index])
+            return self.img_array[self.current_figure_index, r_index, fi_index, theta_index]
         else:
             super(Environment, self).render(mode=mode)  # just raise an exception
 
@@ -211,7 +210,7 @@ class Environment(gym.Env):
         else:
             self.current_state = np.array(
                 [r_index, fi_index, theta_index])  # save the new polar coordinates of the current state
-            observation = self.img_array[r_index, fi_index, theta_index]  # find the new camera input
+            observation = self.img_array[self.current_figure_index, r_index, fi_index, theta_index]  # find the new camera input
         # -------------------------------------------------------------------------------------------------
 
         reward = self.get_reward()  # calcuate the reward
