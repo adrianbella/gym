@@ -121,7 +121,7 @@ class Environment(gym.Env):
         # Derive a random seed. This gets passed as a uint, but gets
         # checked as an int elsewhere, so we need to keep it below
         # 2**31.
-        seed2 = seeding.hash_seed(seed1 + 1) % 2 ** 31
+        seed2 = seeding.hash_seed(seed1 + 1) % 2 ** 15
         return [seed1, seed2]
 
     def reset(self):
@@ -139,7 +139,6 @@ class Environment(gym.Env):
         self.current_state = np.array([r_index, fi_index, theta_index])
 
         initial_observation = self.img_array[self.current_figure_index, r_index, fi_index, theta_index]
-
         return initial_observation
 
     def render(self, mode='human'):
