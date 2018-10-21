@@ -16,7 +16,6 @@ class Environment(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array']}
 
     def __init__(self):
-        self.seed()
 
         self.iterations = 0
         self.episode_steps = 0
@@ -30,17 +29,17 @@ class Environment(gym.Env):
         # set of the name of the figures were used during the training process
         self.traning_names = np.array(
             ['andromeda', 'assistant', 'dreyar', 'eve', 'jasper', 'kachujin', 'liam', 'lola', 'malcolm', 'mark',
-             'medea',
-             'peasant'])
+            'medea',
+            'peasant'])
 
         # set of the name of the figures were used during the validation process
         self.validation_names = np.array(['regina', 'remy', 'stefani'], dtype='U10')  #
 
-        self.img_array = np.zeros((12, 7, 45, 21, 200, 200), dtype=np.uint8)
+        self.img_array = np.zeros((len(self.traning_names), 7, 45, 21, 200, 200), dtype=np.uint8)
 
         self.current_figure_index = 0
-        self.current_state = np.zeros(3)
-        self.previous_state = np.zeros(3)
+        self.current_state = np.zeros(3, dtype=np.float32)
+        self.previous_state = np.zeros(3, dtype=np.float32)
 
         self.actions = np.array(['forward', 'backward', 'up', 'down', 'left', 'right'])
         self.action_space = spaces.Discrete(self.actions.size)
@@ -53,10 +52,11 @@ class Environment(gym.Env):
             print(self.CLASS_TAG + "Error: can\'t find the files or read data")
         else:
             print(self.CLASS_TAG + "Reading screenshots was successful!")
+        self.seed()
 
     def read_files(self):
 
-        for figure_index in range(0,11):
+        for figure_index in range(0, len(self.traning_names)):
             current_name = self.get_name(figure_index)
             current_figure_screenShots_path = "./Screenshots/" + current_name + "/*.png"
             for im_path in glob.glob(current_figure_screenShots_path):
@@ -117,12 +117,8 @@ class Environment(gym.Env):
         return cv2.cvtColor(img, cv2.COLOR_RGB2GRAY).astype(np.uint8)
 
     def seed(self, seed=None):
-        self.np_random, seed1 = seeding.np_random(seed)
-        # Derive a random seed. This gets passed as a uint, but gets
-        # checked as an int elsewhere, so we need to keep it below
-        # 2**31.
-        seed2 = seeding.hash_seed(seed1 + 1) % 2 ** 31
-        return [seed1, seed2]
+        seed = 1230412
+        return [seed]
 
     def reset(self):
 
@@ -130,7 +126,7 @@ class Environment(gym.Env):
         self.done = False
         self.previous_state = np.zeros(3)  # set previous state to null
 
-        figure_index = self.np_random.randint(0,12)
+        figure_index = self.np_random.randint(0,len(self.traning_names))
         r_index = self.np_random.randint(0, 7)
         fi_index = self.np_random.randint(0, 45)
         theta_index = self.np_random.randint(0, 21)
