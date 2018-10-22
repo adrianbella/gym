@@ -136,7 +136,6 @@ class Environment(gym.Env):
         self.current_state = np.array([r_index, fi_index, theta_index])
 
         initial_observation = self.img_array[self.current_figure_index, r_index, fi_index, theta_index]
-
         return initial_observation
 
     def render(self, mode='human'):
