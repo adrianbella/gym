@@ -125,15 +125,15 @@ class Environment(gym.Env):
 
         self.episode_steps = 0
         self.done = False
-        self.previous_state = np.zeros(3)  # set previous state to null
+        self.previous_state = np.zeros(3, dtype=np.uint8)  # set previous state to null
 
-        figure_index = random.randint(0,len(self.traning_names))
-        r_index = random.randint(0, 7)
-        fi_index = random.randint(0, 45)
-        theta_index = random.randint(0, 21)
+        figure_index = random.randint(0,len(self.traning_names) - 1)
+        r_index = random.randint(0, 6)
+        fi_index = random.randint(0, 44)
+        theta_index = random.randint(0, 20)
 
         self.current_figure_index = figure_index
-        self.current_state = np.array([r_index, fi_index, theta_index])
+        self.current_state = np.array([r_index, fi_index, theta_index], dtype=np.uint8)
 
         initial_observation = self.img_array[self.current_figure_index, r_index, fi_index, theta_index]
         return initial_observation
