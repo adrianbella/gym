@@ -3,6 +3,7 @@ import glob
 import numpy as np
 import math
 import cv2
+import random
 
 import gym
 from gym import spaces
@@ -126,10 +127,10 @@ class Environment(gym.Env):
         self.done = False
         self.previous_state = np.zeros(3)  # set previous state to null
 
-        figure_index = self.np_random.randint(0,len(self.traning_names))
-        r_index = self.np_random.randint(0, 7)
-        fi_index = self.np_random.randint(0, 45)
-        theta_index = self.np_random.randint(0, 21)
+        figure_index = random.randint(0,len(self.traning_names))
+        r_index = random.randint(0, 7)
+        fi_index = random.randint(0, 45)
+        theta_index = random.randint(0, 21)
 
         self.current_figure_index = figure_index
         self.current_state = np.array([r_index, fi_index, theta_index])
