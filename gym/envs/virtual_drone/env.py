@@ -59,7 +59,7 @@ class Environment(gym.Env):
 
         for figure_index in range(0, len(self.traning_names)):
             current_name = self.get_name(figure_index)
-            current_figure_screenShots_path = "./Screenshots/" + current_name + "/*.png"
+            current_figure_screenShots_path = "../Screenshots/" + current_name + "/*.png"
             for im_path in glob.glob(current_figure_screenShots_path):
                 x, y, z = self.get_descartes_coordinates(im_path)
                 r, fi, theta = self.get_polar_coordinates(x, y, z)
