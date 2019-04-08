@@ -29,9 +29,9 @@ class Environment(gym.Env):
 
         # set of the name of the figures were used during the training process
         self.traning_names = np.array(
-            ['andromeda'])#, 'assistant', 'dreyar', 'eve', 'jasper', 'kachujin', 'liam', 'lola', 'malcolm', 'mark',
-            #'medea',
-            #'peasant'])
+            ['andromeda', 'assistant', 'dreyar', 'eve', 'jasper', 'kachujin', 'liam', 'lola', 'malcolm', 'mark',
+            'medea',
+            'peasant'])
 
         # set of the name of the figures were used during the validation process
         self.validation_names = np.array(['regina', 'remy', 'stefani'], dtype='U10')  #
