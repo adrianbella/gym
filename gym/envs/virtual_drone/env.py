@@ -29,9 +29,9 @@ class Environment(gym.Env):
 
         # set of the name of the figures were used during the training process
         self.traning_names = np.array(
-            ['andromeda', 'assistant', 'dreyar', 'eve', 'jasper', 'kachujin', 'liam', 'lola', 'malcolm', 'mark',
-            'medea',
-            'peasant'])
+            ['andromeda'])#, 'assistant', 'dreyar', 'eve', 'jasper', 'kachujin', 'liam', 'lola', 'malcolm', 'mark',
+            #'medea',
+            #'peasant'])
 
         # set of the name of the figures were used during the validation process
         self.validation_names = np.array(['regina', 'remy', 'stefani'], dtype='U10')  #
@@ -241,18 +241,9 @@ class Environment(gym.Env):
 
         current_distance = current_r_distance + current_fi_distance + current_theta_distance
 
-        reward_dist = 0
+        reward = 0
 
         if (current_distance - previous_distance) >= 0:
-            reward_dist -= 4
-        else:
-            reward_dist += 1
+            reward -= 1
 
-        reward_bonus = 0
-
-        if reward_dist > 0 and current_distance < 5:
-            reward_bonus = math.exp(5 / (pow(current_distance * 2, 2) + 2))
-
-        reward_sum = reward_dist + reward_bonus
-
-        return reward_sum
+        return reward
