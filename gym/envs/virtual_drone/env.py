@@ -29,9 +29,9 @@ class Environment(gym.Env):
 
         # set of the name of the figures were used during the training process
         self.traning_names = np.array(
-            ['andromeda', 'assistant', 'dreyar', 'eve', 'jasper', 'kachujin', 'liam', 'lola', 'malcolm', 'mark',
-            'medea',
-            'peasant'])
+            ['regina'])#, 'assistant', 'dreyar', 'eve', 'jasper', 'kachujin', 'liam', 'lola', 'malcolm', 'mark',
+            #'medea',
+            #'peasant'])
 
         # set of the name of the figures were used during the validation process
         self.validation_names = np.array(['regina', 'remy', 'stefani'], dtype='U10')  #
@@ -223,15 +223,6 @@ class Environment(gym.Env):
 
     def get_reward(self):
 
-        prev_r_distance = abs(self.previous_state[0] - self.optimal_position[0])
-        if self.previous_state[1] > 22:
-            prev_fi_distance = abs(self.previous_state[1] - 45)
-        else:
-            prev_fi_distance = abs(self.previous_state[1] - self.optimal_position[1])
-        prev_theta_distance = abs(self.previous_state[2] - self.optimal_position[2])
-
-        previous_distance = prev_r_distance + prev_fi_distance + prev_theta_distance
-
         current_r_distance = abs(self.current_state[0] - self.optimal_position[0])
         if self.current_state[1] > 22:
             current_fi_distance = abs(self.current_state[1] - 45)
@@ -241,9 +232,7 @@ class Environment(gym.Env):
 
         current_distance = current_r_distance + current_fi_distance + current_theta_distance
 
-        reward = 0
-
-        if (current_distance - previous_distance) >= 0:
-            reward -= 1
-
-        return reward
+        if (current_distance == 0):
+            return 0
+        else:
+            return -1
